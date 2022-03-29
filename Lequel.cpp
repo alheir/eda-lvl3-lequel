@@ -27,17 +27,25 @@ using namespace std;
  */
 TrigramProfile buildTrigramProfile(const Text &text)
 {
-    wstring_convert<std::codecvt_utf8_utf16<wchar_t> > converter;
+    wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
-    // Your code goes here...
+    TrigramProfile profile;
 
-    // Tip: converts UTF-8 string to wstring
-    // wstring unicodeString = converter.from_bytes(textLine);
+    for (auto x : text)
+    {
+        if (x.length() < 3)
+            continue;
 
-    // Tip: convert wstring to UTF-8 string
-    // string trigram = converter.to_bytes(unicodeTrigram);
+        wstring unicodeString = converter.from_bytes(x);
 
-    return TrigramProfile(); // Replace...
+        for (int i = 0; i < unicodeString.length() - 2; i++)
+        {
+            wstring trigram = unicodeString.substr(i, 3);
+            profile[converter.to_bytes(trigram)] += 1;
+        }
+    }
+
+    return profile;
 }
 
 /*
@@ -48,7 +56,19 @@ TrigramProfile buildTrigramProfile(const Text &text)
  */
 void normalizeTrigramProfile(TrigramProfile &trigramProfile)
 {
-    // Your code goes here...
+    float accumulator = 0.0f;
+
+    for (auto value : trigramProfile)
+    {
+        accumulator += value.second * value.second;
+    }
+
+    accumulator = sqrt(accumulator);
+
+    for (auto &value : trigramProfile)
+    {
+        value.second /= accumulator;
+    }
 
     return;
 }
@@ -65,9 +85,18 @@ void normalizeTrigramProfile(TrigramProfile &trigramProfile)
  */
 float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageProfile)
 {
-    // Your code goes here...
+    float accumulator = 0.0f;
+    for (auto textTrigram : textProfile)
+    {
+        auto iterator = languageProfile.find(textTrigram.first);
 
-    return 0; // Replace...
+        if (iterator != languageProfile.end())
+        {
+            accumulator += iterator->second * textTrigram.second;
+        }
+    }
+
+    return accumulator;
 }
 
 /*
@@ -80,7 +109,22 @@ float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageP
  */
 string identifyLanguage(const Text &text, Languages &languages)
 {
-    // Your code goes here...
+    string languageMatched;
+    float bestCosineSimilarity = 0.0f;
 
-    return ""; // Replace...
+    for (auto language : languages)
+    {
+        TrigramProfile testTrigramProfile = buildTrigramProfile(text);
+
+        float actualCosineSimilarity = getCosineSimilarity(testTrigramProfile,
+                                                           language.trigramProfile);
+        
+        if(actualCosineSimilarity > bestCosineSimilarity)
+        {
+            bestCosineSimilarity = actualCosineSimilarity;
+            languageMatched = language.languageCode;
+        }
+    }
+
+    return languageMatched;
 }
