@@ -67,6 +67,7 @@ Tu respuesta: ITALIANO
 
 And there's a hand, my trusty fiere! and gie's a hand o' thine! And we’ll tak' a right gude-willie waught, for auld lang syne.
 
+//TODO: falta responder por qué falló
 Tu respuesta: INGLÉS
 
 12. El siguiente texto está en inglés. ¿Qué dice Lequel? ¿Qué falló?
