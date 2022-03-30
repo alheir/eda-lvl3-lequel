@@ -67,8 +67,7 @@ Tu respuesta: ITALIANO
 
 And there's a hand, my trusty fiere! and gie's a hand o' thine! And we’ll tak' a right gude-willie waught, for auld lang syne.
 
-//TODO: falta responder por qué falló
-Tu respuesta: INGLÉS
+Tu respuesta: Lequel dice que es INGLÉS. Esto podria deberse a la gran similitud entre ambos idiomas. Ambos son de origen anglosajon, y comparten varias palabras. El ingles tiene algunas palabras de origen escoces y viceversa. De hecho, 14 de las 24 palabras en esta frase son iguales en escoces e ingles. Ademas, trigramas como 'thi' o 'tak' and 'wil' son muy usadas en ingles tambien. Este texto no tiene suficientes palabras solo escocesas como para que lo reconozca como tal usando el metodo de comparacion de trigramas. 
 
 12. El siguiente texto está en inglés. ¿Qué dice Lequel? ¿Qué falló?
 
@@ -81,9 +80,7 @@ WE HAD EVERYTHING BEFORE US, WE HAD NOTHING BEFORE US,
 WE WERE ALL GOING DIRECT TO HEAVEN, WE WERE ALL GOING DIRECT THE OTHER WAY
 – IN SHORT, THE PERIOD WAS SO FAR LIKE THE PRESENT PERIOD, THAT SOME OF ITS NOISIEST AUTHORITIES INSISTED ON ITS BEING RECEIVED, FOR GOOD OR FOR EVIL, IN THE SUPERLATIVE DEGREE OF COMPARISON ONLY.
 
-Tu respuesta: Lequel devuelve la respuest AFRIKAANS, pero es Ingles. Suponemos que Afrikaans contiene mas cantidad de trigramas con mayusculas solamente de entre todos los otros idiomas. Los trigramas son diferentes
-para textos en minuscula que para textos solo en mayusculas pues los unicodes de mayusculas y minusculas 
-son diferentes.
+Tu respuesta: Lequel devuelve la respuest AFRIKAANS, pero es Ingles. Suponemos que Afrikaans contiene mas cantidad de trigramas con mayusculas solamente de entre todos los otros idiomas. Los trigramas son diferentes para textos en minuscula que para textos solo en mayusculas pues los unicodes de mayusculas y minusculas son diferentes.
 
 Si el texto a analizar es muy grande, se producirá un cuello computacional. 
 ¿Cuál es y cómo podría resolverse?
