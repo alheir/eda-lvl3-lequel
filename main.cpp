@@ -26,10 +26,10 @@ bool sorting(const string &first, const string &second)
     return stof(first) > stof(second);
 }
 
-bool addLanguage()
+void addLanguage()
 {
     Text textHandler;
-    getTextFromFile(TRIGRAMS_PATH + "sampleLanguageText.txt", textHandler);
+    getTextFromFile("resources/sampleLanguageText.txt", textHandler);
 
     TrigramProfile trigramProfileHandler = buildTrigramProfile(textHandler);
 
@@ -39,10 +39,11 @@ bool addLanguage()
     {
         csvDataHandler.push_front({profile.first, to_string(profile.second)});
     }
-
+    //TODO: ver cómo funciona el sort de lists. Qué cosas pide
     csvDataHandler.sort(sorting);
 
     writeCSV(TRIGRAMS_PATH + "sampleLanguageCSV.csv", csvDataHandler);
+
 }
 
 /*
@@ -112,6 +113,10 @@ int main(int, char *[])
         cout << "Could not load trigram data." << endl;
         return 1;
     }
+
+    //TODO: llamado al agregado de lenguaje. VER QUE ABAJO HAY UN RETURN 0
+    addLanguage();
+    return 0;
 
     int screenWidth = 800;
     int screenHeight = 450;
