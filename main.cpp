@@ -21,11 +21,27 @@ using namespace std;
 const string LANGUAGECODE_NAMES_FILE = "resources/languagecode_names_es.csv";
 const string TRIGRAMS_PATH = "resources/trigrams/";
 
-bool sorting(const string &first, const string &second)
+/**
+ * @brief Criterio de comparación para ordenar lista CSV, con trigramas y frecuencias
+ * 
+ * @param first Vector de strings con {trigama, frecuencia}
+ * @param second Vector de strings con {trigama, frecuencia}
+ * @return true, first tiene mayor frecuencia que second
+ * @return false, first tiene menor frecuencia que second
+ */
+bool compareTrigramByFreq(const vector<string> &first, const vector<string> &second)
 {
-    return stof(first) > stof(second);
+    return stof(first[1]) > stof(second[1]);
 }
 
+//TODO: ¿hacer que addLanguaje reciba nombre de archivo a agregar + nombre del idioma?
+
+//TODO: El .csv tiene que quedar en TRIGRAMS_PATH, y con el nombre del idioma (cat).
+
+//TODO: También, por cada idioma nuevo, hay que agregarlo al languagecode_names_es.csv ("cat","Catalán")
+//TODO: ¿ordenarlo alfabéticamente? (actualmentel, el 'cat' quedó abajo)
+
+//TODO: revisar si quedaron txts o csvs dando vueltas por el directorio del proyecto
 void addLanguage()
 {
     Text textHandler;
@@ -37,11 +53,10 @@ void addLanguage()
 
     for (auto profile : trigramProfileHandler)
     {
-        csvDataHandler.push_front({profile.first, to_string(profile.second)});
+        csvDataHandler.push_front({profile.first, to_string((int)profile.second)});
     }
-    //TODO: ver cómo funciona el sort de lists. Qué cosas pide
-    csvDataHandler.sort(sorting);
 
+    csvDataHandler.sort(compareTrigramByFreq);
     writeCSV(TRIGRAMS_PATH + "sampleLanguageCSV.csv", csvDataHandler);
 
 }
@@ -103,6 +118,7 @@ bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &langua
     return true;
 }
 
+//TODO: agregar que muestre 2do y 3er idioma más probables, además del 1ro.
 int main(int, char *[])
 {
     map<string, string> languageCodeNames;
@@ -114,9 +130,9 @@ int main(int, char *[])
         return 1;
     }
 
-    //TODO: llamado al agregado de lenguaje. VER QUE ABAJO HAY UN RETURN 0
-    addLanguage();
-    return 0;
+    //TODO: ver cómo implementar el llamado a addLanguage. ¿
+    //addLanguage();
+    //return 0;
 
     int screenWidth = 800;
     int screenHeight = 450;
