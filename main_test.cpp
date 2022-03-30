@@ -15,18 +15,18 @@
 using namespace std;
 
 void print(string s)
-{ 
+{
     cout << s;
 }
 
 int fail()
-{ 
+{
     cout << "FAIL" << endl;
     return 1;
 }
 
 int pass()
-{ 
+{
     cout << "PASS" << endl;
     return 0;
 }

@@ -1,11 +1,14 @@
-/*
- * Lequel?
+/**
+ * @file Lequel.cpp
+ * @author Marc S. Ressl, Albertina Galan, Alejandro Nahuel Heir
+ * @brief Language identification based on trigrams.
+ * @version 0.1
+ * @date 2022-03-29
  *
- * Copyright (C) 2022 Marc S. Ressl
- *
- * Language identification based on trigrams.
+ * @copyright Copyright (c) 2022
  *
  * More info: https://towardsdatascience.com/understanding-cosine-similarity-and-its-application-fd42f585296a
+ *
  */
 
 #include <cmath>
@@ -17,13 +20,11 @@
 
 using namespace std;
 
-/*
- * Builds a trigram profile for a given text.
+/**
+ * @brief Builds a trigram profile for a given text.
  *
- * Parameters:
- *  text -      A list of lines (Text).
- *
- * Returns: the trigram profile.
+ * @param text A list of lines (Text).
+ * @return TrigramProfile
  */
 TrigramProfile buildTrigramProfile(const Text &text)
 {
@@ -48,11 +49,10 @@ TrigramProfile buildTrigramProfile(const Text &text)
     return profile;
 }
 
-/*
- * Normalizes a trigram profile.
+/**
+ * @brief Normalizes a trigram profile.
  *
- * Parameters:
- *  trigramProfile -    Trigram profile.
+ * @param trigramProfile
  */
 void normalizeTrigramProfile(TrigramProfile &trigramProfile)
 {
@@ -73,15 +73,13 @@ void normalizeTrigramProfile(TrigramProfile &trigramProfile)
     return;
 }
 
-/*
- * Calculates the cosine similarity between a text trigram profile
+/**
+ * @brief Calculates the cosine similarity between a text trigram profile
  * and a language trigram profile.
  *
- * Parameters:
- *  textProfile -       Text trigram profile.
- *  languageProfile -   Language trigram profile.
- *
- * Returns: the cosine similarity score.
+ * @param textProfile Text trigram profile.
+ * @param languageProfile Language trigram profile.
+ * @return float, the cosine similarity score.
  */
 float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageProfile)
 {
@@ -99,13 +97,12 @@ float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageP
     return accumulator;
 }
 
-/*
- * Identifies the language of a text.
+/**
+ * @brief Identifies the language of a text.
  *
- * Parameters:
- *  text -      A list of lines (Text).
- *
- * Returns: The language code of the most likely language.
+ * @param text A list of lines (Text).
+ * @param languages
+ * @return string, the language code of the most likely language.
  */
 string identifyLanguage(const Text &text, Languages &languages)
 {
@@ -118,8 +115,8 @@ string identifyLanguage(const Text &text, Languages &languages)
 
         float actualCosineSimilarity = getCosineSimilarity(testTrigramProfile,
                                                            language.trigramProfile);
-        
-        if(actualCosineSimilarity > bestCosineSimilarity)
+
+        if (actualCosineSimilarity > bestCosineSimilarity)
         {
             bestCosineSimilarity = actualCosineSimilarity;
             languageMatched = language.languageCode;

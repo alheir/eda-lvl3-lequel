@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <algorithm>
 
 #include "raylib.h"
 
@@ -19,6 +20,30 @@ using namespace std;
 
 const string LANGUAGECODE_NAMES_FILE = "resources/languagecode_names_es.csv";
 const string TRIGRAMS_PATH = "resources/trigrams/";
+
+bool sorting(const string &first, const string &second)
+{
+    return stof(first) > stof(second);
+}
+
+bool addLanguage()
+{
+    Text textHandler;
+    getTextFromFile(TRIGRAMS_PATH + "sampleLanguageText.txt", textHandler);
+
+    TrigramProfile trigramProfileHandler = buildTrigramProfile(textHandler);
+
+    CSVData csvDataHandler;
+
+    for (auto profile : trigramProfileHandler)
+    {
+        csvDataHandler.push_front({profile.first, to_string(profile.second)});
+    }
+
+    csvDataHandler.sort(sorting);
+
+    writeCSV(TRIGRAMS_PATH + "sampleLanguageCSV.csv", csvDataHandler);
+}
 
 /*
  * Loads trigram data.
