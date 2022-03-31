@@ -37,6 +37,6 @@ void normalizeTrigramProfile(TrigramProfile &trigramProfile);
 
 float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageProfile);
 
-std::string identifyLanguage(const Text &text, Languages &languages);
+void identifyLanguage(const Text &text, Languages &languages, std::string* languagesMatched);
 
 #endif

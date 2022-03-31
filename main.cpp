@@ -118,7 +118,7 @@ bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &langua
     return true;
 }
 
-//TODO: agregar que muestre 2do y 3er idioma más probables, además del 1ro.
+//TODO: optimizar la funcion que devuelve los 3 idiomas mas probables
 int main(int, char *[])
 {
     map<string, string> languageCodeNames;
@@ -141,7 +141,7 @@ int main(int, char *[])
 
     SetTargetFPS(60);
 
-    string languageCode = "---";
+    string languageCodes [3] = {"---", "---", "---"};
 
     while (!WindowShouldClose())
     {
@@ -156,7 +156,7 @@ int main(int, char *[])
             Text text;
             getText(clipboard, text);
 
-            languageCode = identifyLanguage(text, languages);
+            identifyLanguage(text, languages, languageCodes);
         }
 
         if (IsFileDropped())
@@ -168,7 +168,7 @@ int main(int, char *[])
             Text text;
             getTextFromFile(droppedFiles[0], text);
 
-            languageCode = identifyLanguage(text, languages);
+            identifyLanguage(text, languages, languageCodes);
 
             ClearDroppedFiles();
         }
@@ -180,18 +180,24 @@ int main(int, char *[])
         DrawText("Lequel?", 80, 80, 128, BROWN);
         DrawText("Copia y pega con Ctrl+V, o arrastra un archivo...", 80, 220, 24, BROWN);
 
-        string languageString;
-        if (languageCode != "---")
+        string languageStrings[3];
+        for (int i = 0; i < 3; i++)
         {
-            if (languageCodeNames.find(languageCode) != languageCodeNames.end())
-                languageString = languageCodeNames[languageCode];
-            else
-                languageString = "Desconocido";
+            if (languageCodes[i] != "---")
+            {
+                if (languageCodeNames.find(languageCodes[i]) != languageCodeNames.end())
+                    languageStrings[i] = languageCodeNames[languageCodes[i]];
+                else
+                    languageStrings[i] = "Desconocido";
+            }
         }
-
-        int languageStringWidth = MeasureText(languageString.c_str(), 48);
-        DrawText(languageString.c_str(), (screenWidth - languageStringWidth) / 2, 315, 48, BROWN);
-
+        
+        for (int i = 0; i < 3; i++)
+        {
+            int languageStringWidth = MeasureText(languageStrings[0].c_str(), 48);
+            DrawText(languageStrings[i].c_str(), (screenWidth - languageStringWidth) / 2,
+                         315 + 125 * i / (i+1) , 48 / (i + 1), BROWN);
+        }
         EndDrawing();
     }
 

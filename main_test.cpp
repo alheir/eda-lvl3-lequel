@@ -173,6 +173,7 @@ int main()
     pass();
 
     print("identifyLanguage() works with perfect similarity... ");
+    string languageCodes [3] = {"---", "---", "---"};
     languages.clear();
     language.languageCode = "L1";
     language.trigramProfile.clear();
@@ -191,7 +192,8 @@ int main()
     language.trigramProfile["DEF"] = 1;
     languages.push_back(language);
     getText("CDE", text);
-    if (identifyLanguage(text, languages) != "L3")
+    identifyLanguage(text, languages, languageCodes);
+    if (languageCodes[0] != "L3")
         return fail();
     pass();
 

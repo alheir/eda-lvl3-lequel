@@ -104,10 +104,10 @@ float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageP
  * @param languages
  * @return string, the language code of the most likely language.
  */
-string identifyLanguage(const Text &text, Languages &languages)
+void identifyLanguage(const Text &text, Languages &languages, string* languagesMatched)
 {
-    string languageMatched;
     float bestCosineSimilarity = 0.0f;
+    float bestCosineSimilarities [3] = {0.0f, 0.0f, 0.0f};
 
     for (auto language : languages)
     {
@@ -116,12 +116,26 @@ string identifyLanguage(const Text &text, Languages &languages)
         float actualCosineSimilarity = getCosineSimilarity(testTrigramProfile,
                                                            language.trigramProfile);
 
-        if (actualCosineSimilarity > bestCosineSimilarity)
+        if (actualCosineSimilarity > bestCosineSimilarities[0])
         {
-            bestCosineSimilarity = actualCosineSimilarity;
-            languageMatched = language.languageCode;
+            bestCosineSimilarities[2] = bestCosineSimilarities[1];
+            languagesMatched[2] = languagesMatched[1];
+            bestCosineSimilarities[1] = bestCosineSimilarities[0];
+            languagesMatched[1] = languagesMatched[0];
+            bestCosineSimilarities[0] = actualCosineSimilarity;
+            languagesMatched[0] = language.languageCode;
+        }
+        else if (actualCosineSimilarity >= bestCosineSimilarities[1])
+        {
+            bestCosineSimilarities[2] = bestCosineSimilarities[1];
+            languagesMatched[2] = languagesMatched[1];
+            bestCosineSimilarities[1] = actualCosineSimilarity;
+            languagesMatched[1] = language.languageCode;
+        }
+        else if (actualCosineSimilarity >= bestCosineSimilarities[2])
+        {
+            bestCosineSimilarities[2] = actualCosineSimilarity;
+            languagesMatched[2] = language.languageCode;
         }
     }
-
-    return languageMatched;
 }
