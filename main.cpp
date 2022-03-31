@@ -194,9 +194,9 @@ int main(int, char *[])
         
         for (int i = 0; i < 3; i++)
         {
-            int languageStringWidth = MeasureText(languageStrings[0].c_str(), 48);
+            int languageStringWidth = MeasureText(languageStrings[i].c_str(), 48/ (i + 1));
             DrawText(languageStrings[i].c_str(), (screenWidth - languageStringWidth) / 2,
-                         315 + 125 * i / (i+1) , 48 / (i + 1), BROWN);
+                         315 + 140 * i / (i+1) , 48 / (i + 1), BROWN);
         }
         EndDrawing();
     }
