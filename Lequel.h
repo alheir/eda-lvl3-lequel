@@ -1,9 +1,12 @@
-/*
- * Lequel?
+/**
+ * @file Lequel.h
+ * @author Marc S. Ressl, Albertina Galan, Alejandro Nahuel Heir
+ * @brief Language identification based on trigrams.
+ * @version 0.1
+ * @date 2022-03-29
  *
- * Copyright (C) 2022 Marc S. Ressl
+ * @copyright Copyright (c) 2022
  *
- * Language identification based on trigrams.
  */
 
 #ifndef _LEQUEL_H
@@ -37,6 +40,6 @@ void normalizeTrigramProfile(TrigramProfile &trigramProfile);
 
 float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageProfile);
 
-void identifyLanguage(const Text &text, Languages &languages, std::string* languagesMatched);
+void identifyLanguage(const Text &text, Languages &languages, std::string *languagesMatched);
 
 #endif

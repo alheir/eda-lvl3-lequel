@@ -7,7 +7,8 @@
  *
  * @copyright Copyright (c) 2022
  *
- * More info: https://towardsdatascience.com/understanding-cosine-similarity-and-its-application-fd42f585296a
+ * More info:
+ * https://towardsdatascience.com/understanding-cosine-similarity-and-its-application-fd42f585296a
  *
  */
 
@@ -15,6 +16,7 @@
 #include <codecvt>
 #include <locale>
 #include <iostream>
+#include <algorithm>
 
 #include "Lequel.h"
 
@@ -104,10 +106,10 @@ float getCosineSimilarity(TrigramProfile &textProfile, TrigramProfile &languageP
  * @param languages
  * @return string, the language code of the most likely language.
  */
-void identifyLanguage(const Text &text, Languages &languages, string* languagesMatched)
+void identifyLanguage(const Text &text, Languages &languages, string *languagesMatched)
 {
     float bestCosineSimilarity = 0.0f;
-    float bestCosineSimilarities [3] = {0.0f, 0.0f, 0.0f};
+    float bestCosineSimilarities[3] = {0.0f, 0.0f, 0.0f};
 
     for (auto language : languages)
     {

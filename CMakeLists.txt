@@ -3,7 +3,7 @@ project(main VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(main main.cpp CSVData.cpp Text.cpp Lequel.cpp)
+add_executable(main main.cpp CSVData.cpp Text.cpp Lequel.cpp LanguageManager.cpp)
 
 # Copy resources folder to build folder
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE_INIT})
@@ -23,5 +23,7 @@ endif()
 enable_testing()
 
 add_executable(main_test main_test.cpp CSVData.cpp Text.cpp Lequel.cpp)
-
 add_test(NAME test1 COMMAND main_test)
+
+add_executable(LanguageManager_test LanguageManager_test.cpp CSVData.cpp Text.cpp Lequel.cpp LanguageManager.cpp)
+add_test(NAME test2 COMMAND LanguageManager_test)

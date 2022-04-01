@@ -173,7 +173,7 @@ int main()
     pass();
 
     print("identifyLanguage() works with perfect similarity... ");
-    string languageCodes [3] = {"---", "---", "---"};
+    string languageCodes[3] = {"---", "---", "---"};
     languages.clear();
     language.languageCode = "L1";
     language.trigramProfile.clear();
