@@ -16,8 +16,8 @@
 
 using namespace std;
 
-const string LANGUAGECODE_NAMES_FILE = "resources/languagecode_names_es.csv";
-const string TRIGRAMS_PATH = "resources/trigrams/";
+const string LANGUAGECODE_NAMES_FILE = "../resources/languagecode_names_es.csv";
+const string TRIGRAMS_PATH = "../resources/trigrams/";
 
 bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &languages)
 {
