@@ -19,7 +19,7 @@ using namespace std;
 
 enum OPERATION_MODES
 {
-    TRANSLATE,
+    DETECTION,
     ADD_LANGUAGE
 };
 
@@ -47,19 +47,19 @@ int main(int, char *[])
 
     string languageCodes[3] = {"---", "---", "---"};
 
-    int lequelMode = TRANSLATE;
+    int lequelMode = DETECTION;
     string operationResult;
 
     while (!WindowShouldClose())
     {
-        if (IsKeyPressed(KEY_T))
-            lequelMode = TRANSLATE;
+        if (IsKeyPressed(KEY_D))
+            lequelMode = DETECTION;
         else if (IsKeyPressed(KEY_A))
             lequelMode = ADD_LANGUAGE;
 
         switch (lequelMode)
         {
-        case TRANSLATE:
+        case DETECTION:
         {
             if (IsKeyPressed(KEY_V) &&
                 (IsKeyDown(KEY_LEFT_CONTROL) ||
@@ -161,9 +161,9 @@ int main(int, char *[])
                      80, 220, 24, BROWN);
             DrawText("La primera linea debe tener una identificacion del idioma:",
                      80, 250, 24, BROWN);
-            DrawText("código-del-idioma-3-caracteres,nombre-del-idioma ",
+            DrawText("[código del idioma (3caracteres)],[nombre del idioma]",
                      80, 280, 20, RED);
-            DrawText("Para volver al modo de traducción, presione T",
+            DrawText("Para volver al modo de detección, presione D",
                      80, 310, 24, BROWN);
 
             DrawText(operationResult.data(),
