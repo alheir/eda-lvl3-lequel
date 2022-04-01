@@ -23,7 +23,7 @@ const string TRIGRAMS_PATH = "resources/trigrams/";
 
 /**
  * @brief Criterio de comparación para ordenar lista CSV, con trigramas y frecuencias
- * 
+ *
  * @param first Vector de strings con {trigama, frecuencia}
  * @param second Vector de strings con {trigama, frecuencia}
  * @return true, first tiene mayor frecuencia que second
@@ -36,7 +36,7 @@ bool compareTrigramByFreq(const vector<string> &first, const vector<string> &sec
 
 /**
  * @brief Criterio de comparación para ordenar lista CSV, con codigo y nombres de lenguaje
- * 
+ *
  * @param first Vector de strings con {codigo, nombre}
  * @param second Vector de strings con {codigo, nombre}
  * @return true, first va antes alfabeticamnete que second
@@ -47,16 +47,16 @@ int compareAlphabetically(const vector<string> &first, const vector<string> &sec
     return (first[0].compare(second[0]) <= 0) ? true : false;
 }
 
-//TODO: ¿hacer que addLanguaje reciba nombre de archivo a agregar + nombre del idioma?
+// TODO: ¿hacer que addLanguaje reciba nombre de archivo a agregar + nombre del idioma?
 
-//TODO: El .csv tiene que quedar en TRIGRAMS_PATH, y con el nombre del idioma (cat).
+// TODO: El .csv tiene que quedar en TRIGRAMS_PATH, y con el nombre del idioma (cat).
 
-//TODO: También, por cada idioma nuevo, hay que agregarlo al languagecode_names_es.csv ("cat","Catalán")
-//TODO: ¿ordenarlo alfabéticamente? (actualmentel, el 'cat' quedó abajo)
+// TODO: También, por cada idioma nuevo, hay que agregarlo al languagecode_names_es.csv ("cat","Catalán")
+// TODO: ¿ordenarlo alfabéticamente? (actualmentel, el 'cat' quedó abajo)
 
-//TODO: revisar si quedaron txts o csvs dando vueltas por el directorio del proyecto
-//TODO: revisar funcionamiento y que agregue a languagecode_names_es.csv
-void addLanguage(const Text &text, string &languageIdentifier)
+// TODO: revisar si quedaron txts o csvs dando vueltas por el directorio del proyecto
+// TODO: revisar funcionamiento y que agregue a languagecode_names_es.csv
+void addLanguage(const Text &text, string &languageCode)
 {
     TrigramProfile trigramProfileHandler = buildTrigramProfile(text);
 
@@ -67,45 +67,55 @@ void addLanguage(const Text &text, string &languageIdentifier)
         csvDataHandler.push_front({profile.first, to_string((int)profile.second)});
     }
 
-    string languageCode = languageIdentifier.substr(1,3);
-
     csvDataHandler.sort(compareTrigramByFreq);
     writeCSV(TRIGRAMS_PATH + languageCode + ".csv", csvDataHandler);
-
 }
 
-void  modeAddLanguage(std::__1::map<std::__1::string, std::__1::string> &languageCodeNames)
+bool doesLanguageExists(const string &languageIdentifier, string &languageCode, string &languageName, string &output)
 {
-    string result = " ";
+    return true;
+}
 
-    while(!IsKeyPressed(KEY_Q))
+/**
+ * @brief
+ *
+ * @param languageCodeNames Para verificar que no exista
+ * @param languages Para agregar a la lista que una main
+ */
+void modeAddLanguage(map<string, string> &languageCodeNames, Languages &languages)
+{
+    string result;
+
+    while (!IsKeyPressed(KEY_Q))
     {
         if (IsFileDropped())
         {
-            bool error = false;
-
             int count;
             char **droppedFiles = {0};
             droppedFiles = GetDroppedFiles(&count);
 
             Text text;
             getTextFromFile(droppedFiles[0], text);
+            ClearDroppedFiles();
 
             string languageIdentifier = text.front();
             text.pop_front();
 
-            string languageCode = languageIdentifier.substr(0,5);
-            string languageName = languageIdentifier.substr(6);
-            auto iteratorCode = languageCodeNames.find(languageCode);
-            
-            if((languageIdentifier[0] == '\"') 
-                && (languageIdentifier[4] == '\"') 
-                && (languageIdentifier[5] == ',')
-                && (languageIdentifier[6] == '\"')
-                && (languageIdentifier.back() == '\"') )
+            // Creados acá ya que se los necesita para avisar en caso de error
+            string languageName, languageCode;
+
+            bool error = false;
+
+            if (languageIdentifier[3] == ',')
             {
-                if(iteratorCode == languageCodeNames.end())
+
+                languageCode = languageIdentifier.substr(0, 3);
+                auto iteratorCode = languageCodeNames.find(languageCode);
+
+                if (iteratorCode == languageCodeNames.end())
                 {
+                    languageName = languageIdentifier.substr(4);
+
                     for (auto it = languageCodeNames.begin(); it != languageCodeNames.end(); ++it)
                     {
                         if (it->second == languageName)
@@ -118,38 +128,57 @@ void  modeAddLanguage(std::__1::map<std::__1::string, std::__1::string> &languag
                 }
                 else
                 {
-                    result = "Ya existe un idioma con ese codigo: " + languageCode ;
-                     error = true;
+                    result = "Ya existe un idioma con ese codigo: " + languageCode;
+                    error = true;
                 }
             }
             else
             {
-                result = "Formato de archivo incorrecto " + languageIdentifier;
+                result = "Formato de archivo incorrecto: " + languageIdentifier;
                 error = true;
             }
-             
+
             if (!error)
             {
-                addLanguage(text, languageIdentifier);
-                result = "Se agrego" + languageName;
-                languageCodeNames[languageCode] = languageName;
-                
+                // addLanguage(text, languageCode);
+
+                // Lo que hacía addLanguage, creando el .csv específico del idioma
+                TrigramProfile trigramProfileHandler = buildTrigramProfile(text);
+
                 CSVData csvDataHandler;
+                for (auto profile : trigramProfileHandler)
+                {
+                    csvDataHandler.push_front({profile.first, to_string((int)profile.second)});
+                }
+
+                csvDataHandler.sort(compareTrigramByFreq);
+                writeCSV(TRIGRAMS_PATH + languageCode + ".csv", csvDataHandler);
+                // Lo que hacía addLanguage, creando el .csv específico del idioma
+
+                // Se agrega al mapa
+                languageCodeNames[languageCode] = languageName;
+                // Se agrega al mapa
+
+                // Se escribe el nuevo csv con el nuevo idoma, ordenándolo alfabéticamente
+                csvDataHandler.clear();
                 for (auto profile : languageCodeNames)
                 {
-                    string firstMinusComas = profile.first;
-                    string secondMinusComas = profile.second;
-                    firstMinusComas.erase(std::remove(firstMinusComas.begin(),
-                                         firstMinusComas.end(), '\"'), firstMinusComas.end());
-                    secondMinusComas.erase(std::remove(secondMinusComas.begin(),
-                                         secondMinusComas.end(), '\"'), secondMinusComas.end());                                         
-                    csvDataHandler.push_front({firstMinusComas, secondMinusComas});
+                    csvDataHandler.push_front({profile.first, profile.second});
                 }
+
                 csvDataHandler.sort(compareAlphabetically);
                 writeCSV(LANGUAGECODE_NAMES_FILE, csvDataHandler);
-            }
+                // Se escribe el nuevo csv con el nuevo idoma, ordenándolo alfabéticamente
 
-            ClearDroppedFiles();
+                // Se actualiza la lista de idiomas que usa main
+                Language newLanguage;
+                newLanguage.languageCode = languageCode;
+                newLanguage.trigramProfile = trigramProfileHandler;
+                languages.push_back(newLanguage);
+                // Se actualiza la lista de idiomas que usa main
+
+                result = "Se agregó: " + languageName;
+            }
         }
 
         BeginDrawing();
@@ -158,10 +187,10 @@ void  modeAddLanguage(std::__1::map<std::__1::string, std::__1::string> &languag
 
         DrawText("Lequel?", 80, 80, 128, BROWN);
         DrawText("Arrastra un archivo:", 80, 220, 24, BROWN);
-        DrawText("La primera linea debe tener una identificacion del idioma", 80, 250, 24, BROWN);
-        DrawText(" \"[codigo de idioma (3 caracteres)]\",\"[nombre del idioma]\" ", 80, 280, 24, BROWN);
+        DrawText("La primera linea debe tener una identificacion del idioma:", 80, 250, 24, BROWN);
+        DrawText("código-del-idioma-3-caracteres,nombre-del-idioma ", 80, 280, 24, BROWN);
         DrawText("Para salir del modo insertar idioma, presione Q", 80, 310, 24, BROWN);
-        if(result != " ")
+        if (result != " ")
         {
             DrawText(result.data(), 80, 340, 24, BROWN);
         }
@@ -226,9 +255,10 @@ bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &langua
     return true;
 }
 
-//TODO: optimizar la funcion que devuelve los 3 idiomas mas probables
+// TODO: optimizar la funcion que devuelve los 3 idiomas mas probables
 int main(int, char *[])
 {
+
     map<string, string> languageCodeNames;
     Languages languages;
 
@@ -238,6 +268,38 @@ int main(int, char *[])
         return 1;
     }
 
+    /*
+    Text textHandler;
+    getTextFromFile("catalan.txt", textHandler);
+
+    TrigramProfile trigramProfileHandler = buildTrigramProfile(textHandler);
+
+    CSVData csvDataHandler;
+    for (auto profile : trigramProfileHandler)
+    {
+        csvDataHandler.push_front({profile.first, to_string((int)profile.second)});
+    }
+
+    csvDataHandler.sort(compareTrigramByFreq);
+    writeCSV(TRIGRAMS_PATH + "cat.csv", csvDataHandler);
+
+    languageCodeNames["cat"] = "Catalán";
+
+    csvDataHandler.clear();
+    for (auto profile : languageCodeNames)
+    {
+        csvDataHandler.push_front({profile.first, profile.second});
+    }
+    csvDataHandler.sort(compareAlphabetically);
+    writeCSV(LANGUAGECODE_NAMES_FILE, csvDataHandler);
+
+    if (!loadLanguagesData(languageCodeNames, languages))
+    {
+        cout << "Could not REload trigram data." << endl;
+        return 1;
+    }
+    */
+
     int screenWidth = 800;
     int screenHeight = 450;
 
@@ -245,15 +307,15 @@ int main(int, char *[])
 
     SetTargetFPS(60);
 
-    string languageCodes [3] = {"---", "---", "---"};
-
+    string languageCodes[3] = {"---", "---", "---"};
 
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_A))
         {
-            modeAddLanguage(languageCodeNames);
+            modeAddLanguage(languageCodeNames, languages);
         }
+
         if (IsKeyPressed(KEY_V) &&
             (IsKeyDown(KEY_LEFT_CONTROL) ||
              IsKeyDown(KEY_RIGHT_CONTROL) ||
@@ -301,12 +363,12 @@ int main(int, char *[])
                     languageStrings[i] = "Desconocido";
             }
         }
-        
+
         for (int i = 0; i < 3; i++)
         {
-            int languageStringWidth = MeasureText(languageStrings[i].c_str(), 48/ (i + 1));
+            int languageStringWidth = MeasureText(languageStrings[i].c_str(), 48 / (i + 1));
             DrawText(languageStrings[i].c_str(), (screenWidth - languageStringWidth) / 2,
-                         315 + 140 * i / (i+1) , 48 / (i + 1), BROWN);
+                     315 + 140 * i / (i + 1), 48 / (i + 1), BROWN);
         }
         EndDrawing();
     }
