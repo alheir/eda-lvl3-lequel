@@ -63,17 +63,56 @@ int main()
 
     print("compareTrigramByFreq() works when first freq is greater than second freq... ");
     if (!compareTrigramByFreq({keys1[0], to_string(values1[0])}, {keys2[0], to_string(values2[0])}))
-        fail();
+        return fail();
     pass();
 
     print("compareTrigramByFreq() works when second freq is greater than first freq... ");
     if (compareTrigramByFreq({keys1[1], to_string(values1[1])}, {keys2[1], to_string(values2[1])}))
-        fail();
+        return fail();
     pass();
 
     print("compareTrigramByFreq() works when both first and second freq are the same... ");
     if (compareTrigramByFreq({keys1[1], to_string(values1[1])}, {keys2[1], to_string(values2[1])}))
-        fail();
+        return fail();
+    pass();
+
+    map<string, string> languageCodeNames;
+    languageCodeNames["aaa"] = "abcde";
+    string languageIdentifier1 = "aaa,abcde";
+    string languageIdentifier2 = "aaa,abcdd";
+    string languageIdentifier3 = "bbb,abcde";
+    string languageIdentifier4 = "bbb,abcdd";
+    string code, name;
+    string result;
+
+    printf("verifyNewLanguage() works when new language does not exist... ");
+    if (!verifyNewLanguage(languageCodeNames, languageIdentifier4, code, name, result))
+        return fail();
+    pass();
+
+    printf("verifyNewLanguage() gets language code correctly... ");
+    if (code != "bbb")
+        return fail();
+    pass();
+
+    printf("verifyNewLanguage() gets language name correctly... ");
+    if (name != "abcdd")
+        return fail();
+    pass();
+
+    printf("verifyNewLanguage() works when new language already exists... ");
+    if (verifyNewLanguage(languageCodeNames, languageIdentifier1, code, name, result))
+        return fail();
+    pass();
+
+    printf("verifyNewLanguage() works when only new language code exists... ");
+    if (verifyNewLanguage(languageCodeNames, languageIdentifier2, code, name, result))
+        return fail();
+    pass();
+
+    printf("verifyNewLanguage() works when only new language name exists... ");
+    if (verifyNewLanguage(languageCodeNames, languageIdentifier3, code, name, result))
+        return fail();
     pass();
 
     return 0;
