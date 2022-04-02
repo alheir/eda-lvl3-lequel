@@ -13,8 +13,6 @@ Durante la ejecución del programa, es posible tanto detectar un idioma como agr
 
 En el trabajo se deja uno solo incorporado (ver abajo), y otros listos para que el usuario los agregue.
 
-> Si se corre en un entorno CMake, los nuevos idiomas agregados quedarán bajo `/build/resources`, en vez de `/resources`.
-
 * Idiomas agregados:
   * Catalán
 * Idiomas listos para agregar: *(ver `/resources/usableCorpus`)*
