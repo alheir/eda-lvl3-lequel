@@ -19,6 +19,14 @@ using namespace std;
 const string LANGUAGECODE_NAMES_FILE = "../resources/languagecode_names_es.csv";
 const string TRIGRAMS_PATH = "../resources/trigrams/";
 
+/**
+ * @brief Loads trigram data.
+ *
+ * @param text: the corpus of the language to add
+ * @param languageCodeNames: Map of language code vs. language name (in user's locale).
+ * @param trigramProfiles: The trigram profiles.
+ * @return: whether the function succeeded.
+ */
 bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &languages)
 {
     // Reads available language codes
@@ -67,6 +75,16 @@ bool loadLanguagesData(map<string, string> &languageCodeNames, Languages &langua
     return true;
 }
 
+/**
+ * @brief Allows the addition of a new language to the list of languages the program interprets
+ *
+ * @param text: the corpus of the language to add
+ * @param languageCodeNames: the list of all current languages
+ * @param languages: the trigram profiles of all languages
+ * @param languageCode: the code for the new language
+ * @param languageName: the name of the new language
+ * @param result: whether the language was added or there was an error
+ */
 void addLanguage(const Text &text, map<string, string> &languageCodeNames,
                  Languages &languages, const string &languageCode,
                  const string &languageName, string &result)
@@ -82,11 +100,9 @@ void addLanguage(const Text &text, map<string, string> &languageCodeNames,
 
     csvDataHandler.sort(compareTrigramByFreq);
     writeCSV(TRIGRAMS_PATH + languageCode + ".csv", csvDataHandler);
-    // Se crea el trigramProfile del texto nuevo, y se escribe su .csv
 
     // Se agrega al mapa
     languageCodeNames[languageCode] = languageName;
-    // Se agrega al mapa
 
     // Se escribe el nuevo csv con el nuevo idoma, ordenándolo alfabéticamente
     csvDataHandler.clear();
@@ -97,18 +113,27 @@ void addLanguage(const Text &text, map<string, string> &languageCodeNames,
 
     csvDataHandler.sort();
     writeCSV(LANGUAGECODE_NAMES_FILE, csvDataHandler);
-    // Se escribe el nuevo csv con el nuevo idoma, ordenándolo alfabéticamente
 
     // Se actualiza la lista de idiomas que usa main
     Language newLanguage;
     newLanguage.languageCode = languageCode;
     newLanguage.trigramProfile = trigramProfileHandler;
     languages.push_back(newLanguage);
-    // Se actualiza la lista de idiomas que usa main
 
     result = "Se agregó: " + languageName;
 }
 
+/**
+ * @brief Verifies if the language to add already exists or if there is an error in text format
+ *
+ * @param languageCodeNames: the list of all current languages
+ * @param languageIdentifier: the code and name of the new language. Should be first line of text
+ * @param languageCode: the code for the new language
+ * @param languageName: the name of the new language
+ * @param output: the string with the result: if its able to add the language or not
+ * @return true Posible agregarlo
+ * @return false Imposible agregarlo
+ */
 bool verifyNewLanguage(const map<string, string> &languageCodeNames,
                        const string &languageIdentifier, string &languageCode,
                        string &languageName, string &output)
@@ -149,6 +174,14 @@ bool verifyNewLanguage(const map<string, string> &languageCodeNames,
     return !error;
 }
 
+/**
+ * @brief Criteria of comparison to order the CSV list, with trigramas and frecuency
+ *
+ * @param first Vector of strings with {trigam, frecuency}
+ * @param second Vector of strings with {trigam, frecuency}
+ * @return true, first has a higher frequency than second
+ * @return false, first has a lower frequency than second
+ */
 bool compareTrigramByFreq(const vector<string> &first, const vector<string> &second)
 {
     return stof(first[1]) > stof(second[1]);

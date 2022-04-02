@@ -1,3 +1,6 @@
+# Alejandro Nahuel Heir y Albertina Galan
+# EDA TP3: Lequel
+
 cmake_minimum_required(VERSION 3.1.4)
 project(main VERSION 0.1.0)
 

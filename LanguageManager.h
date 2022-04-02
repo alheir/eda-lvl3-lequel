@@ -1,7 +1,7 @@
 /**
  * @file LanguageManager.h
  * @author Marc S. Ressl, Albertina Galan, Alejandro Nahuel Heir
- * @brief Administrador de lenguajes, para agregarlos y detectar existentes.
+ * @brief Administrator of languajes, ta add and detect existence.
  * @version 0.1
  * @date 2022-03-29
  *
@@ -16,40 +16,39 @@
 #include "Text.h"
 #include "CSVData.h"
 
-/*
- * Loads trigram data.
+/**
+ * @brief Loads trigram data.
  *
- * Parameters:
- *  languageCodeNames -     Map of language code vs. language name (in user's locale).
- *  trigramProfiles -       The trigram profiles.
- *
- * Returns: whether the function succeeded.
+ * @param text: the corpus of the language to add
+ * @param languageCodeNames: Map of language code vs. language name (in user's locale).
+ * @param trigramProfiles: The trigram profiles.
+ * @return: whether the function succeeded.
  */
 bool loadLanguagesData(std::map<std::string, std::string> &languageCodeNames,
                        Languages &languages);
 
 /**
- * @brief
+ * @brief Allows the addition of a new language to the list of languages the program interprets
  *
- * @param text
- * @param languageCodeNames
- * @param languages
- * @param languageCode
- * @param languageName
- * @param result
+ * @param text: the corpus of the language to add
+ * @param languageCodeNames: the list of all current languages
+ * @param languages: the trigram profiles of all languages
+ * @param languageCode: the code for the new language
+ * @param languageName: the name of the new language
+ * @param result: whether the language was added or there was an error
  */
 void addLanguage(const Text &text, std::map<std::string, std::string> &languageCodeNames,
                  Languages &languages, const std::string &languageCode,
                  const std::string &languageName, std::string &result);
 
 /**
- * @brief
+ * @brief Verifies if the language to add already exists or if there is an error in text format
  *
- * @param languageCodeNames
- * @param languageIdentifier
- * @param languageCode
- * @param languageName
- * @param output
+ * @param languageCodeNames: the list of all current languages
+ * @param languageIdentifier: the code and name of the new language. Should be first line of text
+ * @param languageCode: the code for the new language
+ * @param languageName: the name of the new language
+ * @param output: the string with the result: if its able to add the language or not
  * @return true Posible agregarlo
  * @return false Imposible agregarlo
  */
@@ -58,12 +57,12 @@ bool verifyNewLanguage(const std::map<std::string, std::string> &languageCodeNam
                        std::string &languageName, std::string &output);
 
 /**
- * @brief Criterio de comparación para ordenar lista CSV, con trigramas y frecuencias
+ * @brief Criteria of comparison to order the CSV list, with trigramas and frecuency
  *
- * @param first Vector de strings con {trigama, frecuencia}
- * @param second Vector de strings con {trigama, frecuencia}
- * @return true, first tiene mayor frecuencia que second
- * @return false, first tiene menor frecuencia que second
+ * @param first Vector of strings with {trigam, frecuency}
+ * @param second Vector of strings with {trigam, frecuency}
+ * @return true, first has a higher frequency than second
+ * @return false, first has a lower frequency than second
  */
 bool compareTrigramByFreq(const std::vector<std::string> &first,
                           const std::vector<std::string> &second);

@@ -7,6 +7,8 @@
  *
  * @copyright Copyright (c) 2022
  *
+ * @note Se provee en resources/corpus una lista de textos de idiomas para agregar.
+ *       El idioma Catalán ya fue incorporado. Referirse al read me de esa carpeta
  */
 
 #include <iostream>
@@ -22,10 +24,6 @@ enum OPERATION_MODES
     DETECTION,
     ADD_LANGUAGE
 };
-
-// TODO: revisar si quedaron txts o csvs dando vueltas por el directorio del proyecto
-// TODO: revisar funcionamiento y que agregue a languagecode_names_es.csv
-// TODO: optimizar la funcion que devuelve los 3 idiomas mas probables
 
 int main(int, char *[])
 {
