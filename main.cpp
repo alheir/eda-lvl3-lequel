@@ -8,7 +8,8 @@
  * @copyright Copyright (c) 2022
  *
  * @note Se provee en resources/corpus una lista de textos de idiomas para agregar.
- *       El idioma Catalán ya fue incorporado. Referirse al read me de esa carpeta
+ *       El idioma Catalán ya fue incorporado. Referirse al README de esa carpeta y al
+ *       del directorio principal.
  */
 
 #include <iostream>
@@ -142,7 +143,7 @@ int main(int, char *[])
                 string languageName, languageCode;
 
                 if (verifyNewLanguage(languageCodeNames, languageIdentifier, languageCode,
-                                       languageName, operationResult))
+                                      languageName, operationResult))
                 {
                     addLanguage(text, languageCodeNames, languages, languageCode, languageName,
                                 operationResult);

@@ -1,0 +1,1015 @@
+goo,goLanguage
+package conversion
+
+import "testing"
+
+func TestBase64Encode(t *testing.T) {
+	testCases := []struct {
+		in       string
+		expected string
+	}{
+		{"Hello World!", "SGVsbG8gV29ybGQh"},       // multiple of 3 byte length (multiple of 24-bits)
+		{"Hello World!a", "SGVsbG8gV29ybGQhYQ=="},  // multiple of 3 byte length + 1
+		{"Hello World!ab", "SGVsbG8gV29ybGQhYWI="}, // multiple of 3 byte length + 2
+		{"", ""},      // empty byte slice
+		{"6", "Ng=="}, // short text
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1YXQuIER1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRldXIgc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLg=="}, // Long text
+	}
+
+	for _, tc := range testCases {
+		result := Base64Encode([]byte(tc.in))
+		if result != tc.expected {
+			t.Fatalf("Base64Encode(%s) = %s, want %s", tc.in, result, tc.expected)
+		}
+	}
+}
+
+func BenchmarkBase64Encode(b *testing.B) {
+	benchmarks := []struct {
+		name     string
+		in       string
+		expected string
+	}{
+		{"Hello World!", "Hello World!", "SGVsbG8gV29ybGQh"},         // multiple of 3 byte length (multiple of 24-bits)
+		{"Hello World!a", "Hello World!a", "SGVsbG8gV29ybGQhYQ=="},   // multiple of 3 byte length + 1
+		{"Hello World!ab", "Hello World!ab", "SGVsbG8gV29ybGQhYWI="}, // multiple of 3 byte length + 2
+		{"Empty", "", ""},  // empty byte slice
+		{"6", "6", "Ng=="}, // short text
+		{"Lorem ipsum", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1YXQuIER1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRldXIgc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLg=="}, // Long text
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Base64Encode([]byte(bm.in))
+			}
+		})
+	}
+}
+
+func TestBase64Decode(t *testing.T) {
+	testCases := []struct {
+		expected string
+		in       string
+	}{
+		{"Hello World!", "SGVsbG8gV29ybGQh"},       // multiple of 3 byte length (multiple of 24-bits)
+		{"Hello World!a", "SGVsbG8gV29ybGQhYQ=="},  // multiple of 3 byte length + 1
+		{"Hello World!ab", "SGVsbG8gV29ybGQhYWI="}, // multiple of 3 byte length + 2
+		{"", ""},      // empty byte slice
+		{"6", "Ng=="}, // short text
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1YXQuIER1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRldXIgc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLg=="}, // Long text
+	}
+
+	for _, tc := range testCases {
+		result := string(Base64Decode(tc.in))
+		if result != tc.expected {
+			t.Fatalf("Base64Decode(%s) = %s, want %s", tc.in, result, tc.expected)
+		}
+	}
+}
+
+func BenchmarkBase64Decode(b *testing.B) {
+	benchmarks := []struct {
+		name     string
+		expected string
+		in       string
+	}{
+		{"Hello World!", "Hello World!", "SGVsbG8gV29ybGQh"},         // multiple of 3 byte length (multiple of 24-bits)
+		{"Hello World!a", "Hello World!a", "SGVsbG8gV29ybGQhYQ=="},   // multiple of 3 byte length + 1
+		{"Hello World!ab", "Hello World!ab", "SGVsbG8gV29ybGQhYWI="}, // multiple of 3 byte length + 2
+		{"Empty", "", ""},  // empty byte slice
+		{"6", "6", "Ng=="}, // short text
+		{"Lorem ipsum", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwgc2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWduYSBhbGlxdWEuIFV0IGVuaW0gYWQgbWluaW0gdmVuaWFtLCBxdWlzIG5vc3RydWQgZXhlcmNpdGF0aW9uIHVsbGFtY28gbGFib3JpcyBuaXNpIHV0IGFsaXF1aXAgZXggZWEgY29tbW9kbyBjb25zZXF1YXQuIER1aXMgYXV0ZSBpcnVyZSBkb2xvciBpbiByZXByZWhlbmRlcml0IGluIHZvbHVwdGF0ZSB2ZWxpdCBlc3NlIGNpbGx1bSBkb2xvcmUgZXUgZnVnaWF0IG51bGxhIHBhcmlhdHVyLiBFeGNlcHRldXIgc2ludCBvY2NhZWNhdCBjdXBpZGF0YXQgbm9uIHByb2lkZW50LCBzdW50IGluIGN1bHBhIHF1aSBvZmZpY2lhIGRlc2VydW50IG1vbGxpdCBhbmltIGlkIGVzdCBsYWJvcnVtLg=="}, // Long text
+	}
+
+	for _, bm := range benchmarks {
+		b.Run(bm.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				Base64Decode(bm.in)
+			}
+		})
+	}
+}
+
+func TestBase64EncodeDecodeInverse(t *testing.T) {
+	testCases := []struct {
+		in string
+	}{
+		{"Hello World!"},   // multiple of 3 byte length (multiple of 24-bits)
+		{"Hello World!a"},  // multiple of 3 byte length + 1
+		{"Hello World!ab"}, // multiple of 3 byte length + 2
+		{""},               // empty byte slice
+		{"6"},              // short text
+		{"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}, // Long text
+	}
+
+	for _, tc := range testCases {
+		result := string(Base64Decode(Base64Encode([]byte(tc.in))))
+		if result != tc.in {
+			t.Fatalf("Base64Decode(Base64Encode(%s)) = %s, want %s", tc.in, result, tc.in)
+		}
+	}
+}
+
+func FuzzBase64Encode(f *testing.F) {
+	f.Add([]byte("hello"))
+	f.Fuzz(func(t *testing.T, input []byte) {
+		result := Base64Decode(Base64Encode(input))
+		for i := 0; i < len(input); i++ {
+			if result[i] != input[i] {
+				t.Fatalf("with input '%s' - expected '%s', got '%s' (mismatch at position %d)", input, input, result, i)
+			}
+		}
+	})
+}
+package set
+
+import (
+	"testing"
+)
+
+func TestNew(t *testing.T) {
+	set := New(1, 2, 3)
+	if set.Len() != 3 {
+		t.Errorf("expecting 3 elements in the set but got %v: %v", set.Len(), set.GetItems())
+	}
+	for _, n := range []int{1, 2, 3} {
+		if !set.In(n) {
+			t.Errorf("expecting %d to be present in the set but was not; set is %v", n, set.GetItems())
+		}
+	}
+	if set.In(5) {
+		t.Errorf("expecting 5 not to be present in the set but it was; set is %v", set.GetItems())
+	}
+}
+
+func TestAdd(t *testing.T) {
+	td := []struct {
+		name     string
+		input    int
+		expElems []int
+	}{
+		{"add new element", 5, []int{1, 2, 3, 5}},
+		{"add exiting element", 3, []int{1, 2, 3}},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := New(1, 2, 3)
+			s.Add(tc.input)
+			if s.Len() != len(tc.expElems) {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", len(tc.expElems), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expElems {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+
+func TestDelete(t *testing.T) {
+	td := []struct {
+		name     string
+		input    int
+		expElems []int
+	}{
+		{"delete exiting element", 3, []int{1, 2}},
+		{"delete not existing element", 5, []int{1, 2, 3}},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := New(1, 2, 3)
+			s.Delete(tc.input)
+			if s.Len() != len(tc.expElems) {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", len(tc.expElems), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expElems {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+
+func TestIsSubsetOf(t *testing.T) {
+	s1, s2 := New(1, 2, 3), New(1, 2, 3, 4)
+	if !s1.IsSubsetOf(s2) {
+		t.Errorf("expecting %v to be a subset of %v", s1, s2)
+	}
+	if s2.IsSubsetOf(s1) {
+		t.Errorf("expecting %v not to be a subset of %v", s2, s1)
+	}
+	if s3 := New(1, 2, 5, 6); s1.IsSubsetOf(s3) {
+		t.Errorf("expecting %v not to be a subset of %v", s1, s3)
+	}
+}
+
+func TestIsSupersetOf(t *testing.T) {
+	s1, s2 := New(1, 2, 3), New(1, 2, 3, 4)
+	if !s2.IsSupersetOf(s1) {
+		t.Errorf("expecting %v to be a superset of %v", s2, s1)
+	}
+	if s1.IsSupersetOf(s2) {
+		t.Errorf("expecting %v not to be a superset of %v", s1, s2)
+	}
+	if s3 := New(1, 2, 5); s2.IsSupersetOf(s3) {
+		t.Errorf("expecting %v not to be a superset of %v", s2, s3)
+	}
+}
+
+func TestUnion(t *testing.T) {
+	td := []struct {
+		name   string
+		s1     Set
+		s2     Set
+		expSet Set
+	}{
+		{"union of different sets", New(1, 2, 3), New(4, 5, 6), New(1, 2, 3, 4, 5, 6)},
+		{"union of sets with elements in common", New(1, 2, 3), New(1, 2, 4), New(1, 2, 3, 4)},
+		{"union of same sets", New(1, 2, 3), New(1, 2, 3), New(1, 2, 3)},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := tc.s1.Union(tc.s2)
+			if s.Len() != tc.expSet.Len() {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", tc.expSet.Len(), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expSet.GetItems() {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+
+func TestIntersection(t *testing.T) {
+	td := []struct {
+		name   string
+		s1     Set
+		s2     Set
+		expSet Set
+	}{
+		{"intersection of different sets", New(0, 1, 2, 3), New(4, 5, 6), New()},
+		{"intersection of sets with elements in common", New(1, 2, 3), New(1, 2, 4), New(1, 2)},
+		{"intersection of same sets", New(1, 2, 3), New(1, 2, 3), New(1, 2, 3)},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := tc.s1.Intersection(tc.s2)
+			if s.Len() != tc.expSet.Len() {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", tc.expSet.Len(), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expSet.GetItems() {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+
+func TestDifference(t *testing.T) {
+	td := []struct {
+		name   string
+		s1     Set
+		s2     Set
+		expSet Set
+	}{
+		{"difference of different sets", New(1, 2, 3), New(4, 5, 6), New(1, 2, 3)},
+		{"difference of sets with elements in common", New(1, 2, 3), New(1, 2, 4), New(3)},
+		{"difference of same sets", New(1, 2, 3), New(1, 2, 3), New()},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := tc.s1.Difference(tc.s2)
+			if s.Len() != tc.expSet.Len() {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", tc.expSet.Len(), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expSet.GetItems() {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+
+func TestSymmetricDifference(t *testing.T) {
+	td := []struct {
+		name   string
+		s1     Set
+		s2     Set
+		expSet Set
+	}{
+		{"symmetric difference of different sets", New(1, 2, 3), New(4, 5, 6), New(1, 2, 3, 4, 5, 6)},
+		{"symmetric difference of sets with elements in common", New(1, 2, 3), New(1, 2, 4), New(3, 4)},
+		{"symmetric difference of same sets", New(1, 2, 3), New(1, 2, 3), New()},
+	}
+	for _, tc := range td {
+		t.Run(tc.name, func(t *testing.T) {
+			s := tc.s1.SymmetricDifference(tc.s2)
+			if s.Len() != tc.expSet.Len() {
+				t.Errorf("expecting %d elements in the set but got %d: set is %v", tc.expSet.Len(), s.Len(), s.GetItems())
+			}
+			for _, n := range tc.expSet.GetItems() {
+				if !s.In(n) {
+					t.Errorf("expecting %d to be present in the set but was not; set is %v", n, s.GetItems())
+				}
+			}
+		})
+	}
+}
+// Package genetic provides functions to work with strings
+// using genetic algorithm. https://en.wikipedia.org/wiki/Genetic_algorithm
+//
+// Author: D4rkia
+package genetic
+
+import (
+	"errors"
+	"fmt"
+	"math/rand"
+	"sort"
+	"strconv"
+	"time"
+	"unicode/utf8"
+)
+
+// Population item represent a single step in the evolution process.
+// One can think of population item as a single species.
+// Key stands for the actual data entity of the species, which is a string
+// in current implementation. Key can be interpreted as species DNA.
+// Value shows how close this species to the desired target, where 1 means,
+// that species DNA equals to the targeted one, 0 for no matchings in the DNA.
+//
+// **Note** In the current implementation species DNA length is suppose to be
+// equal to the target length for algorithm to work.
+type PopulationItem struct {
+	Key   string
+	Value float64
+}
+
+// Conf stands for cofigurations set provided to GeneticString function.
+type Conf struct {
+	// Maximum size of the population.
+	// Bigger could be faster but more memory expensive.
+	PopulationNum int
+
+	// Number of elements selected in every generation for evolution
+	// the selection takes. Place from the best to the worst of that
+	// generation must be smaller than PopulationNum.
+	SelectionNum int
+
+	// Probability that an element of a generation can mutate changing one of
+	// its genes this guarantees that all genes will be used during evolution.
+	MutationProb float64
+
+	// Enables debugging output to the console.
+	Debug bool
+}
+
+// Result structure contains generation process statistics, as well as the
+// best resulted population item.
+type Result struct {
+	// Number of generations steps performed.
+	Generation int
+
+	// Number of generated population items.
+	Analyzed int
+
+	// Result of generation with the best Value.
+	Best PopulationItem
+}
+
+// GeneticString generates PopultaionItem based on the imputed target
+// string, and a set of possible runes to build a string with. In order
+// to optimise string generation additional configurations can be provided
+// with Conf instance. Empty instance of Conf (&Conf{}) can be provided,
+// then default values would be set.
+//
+// Link to the same algorithm implemented in python:
+// https://github.com/TheAlgorithms/Python/blob/master/genetic_algorithm/basic_string.py
+func GeneticString(target string, charmap []rune, conf *Conf) (*Result, error) {
+	populationNum := conf.PopulationNum
+	if populationNum == 0 {
+		populationNum = 200
+	}
+
+	selectionNum := conf.SelectionNum
+	if selectionNum == 0 {
+		selectionNum = 50
+	}
+
+	// Verify if 'populationNum' s bigger than 'selectionNum'
+	if populationNum < selectionNum {
+		return nil, errors.New("populationNum must be bigger than selectionNum")
+	}
+
+	mutationProb := conf.MutationProb
+	if mutationProb == .0 {
+		mutationProb = .4
+	}
+
+	debug := conf.Debug
+
+	// Just a seed to improve randomness required by the algorithm
+	rand.Seed(time.Now().UnixNano())
+
+	// Verify that the target contains no genes besides the ones inside genes variable.
+	for position, r := range target {
+		invalid := true
+		for _, n := range charmap {
+			if n == r {
+				invalid = false
+			}
+		}
+		if invalid {
+			message := fmt.Sprintf("character not available in charmap at position: %v", position)
+			return nil, errors.New(message)
+		}
+	}
+
+	// Generate random starting population
+	pop := make([]PopulationItem, populationNum)
+	for i := 0; i < populationNum; i++ {
+		key := ""
+		for x := 0; x < utf8.RuneCountInString(target); x++ {
+			choice := rand.Intn(len(charmap))
+			key += string(charmap[choice])
+		}
+		pop[i] = PopulationItem{key, 0}
+	}
+
+	// Just some logs to know what the algorithms is doing
+	gen, generatedPop := 0, 0
+
+	// This loop will end when we will find a perfect match for our target
+	for {
+		gen++
+		generatedPop += len(pop)
+
+		// Random population created now it's time to evaluate
+		for i, item := range pop {
+			pop[i].Value = 0
+			itemKey, targetRune := []rune(item.Key), []rune(target)
+			for x := 0; x < len(target); x++ {
+				if itemKey[x] == targetRune[x] {
+					pop[i].Value++
+				}
+			}
+			pop[i].Value = pop[i].Value / float64(len(targetRune))
+		}
+		sort.SliceStable(pop, func(i, j int) bool { return pop[i].Value > pop[j].Value })
+
+		// Check if there is a matching evolution
+		if pop[0].Key == target {
+			break
+		}
+
+		// Print the best resultPrint the Best result every 10 generations
+		// just to know that the algorithm is working
+		if debug && gen%10 == 0 {
+			fmt.Println("Generation:", strconv.Itoa(gen), "Analyzed:", generatedPop, "Best:", pop[0])
+		}
+
+		// Generate a new population vector keeping some of the best evolutions
+		// Keeping this avoid regression of evolution
+		var popChildren []PopulationItem
+		popChildren = append(popChildren, pop[0:int(selectionNum/3)]...)
+
+		// This is Selection
+		for i := 0; i < int(selectionNum); i++ {
+			parent1 := pop[i]
+			// Generate more child proportionally to the fitness score
+			nChild := (parent1.Value * 100) + 1
+			if nChild >= 10 {
+				nChild = 10
+			}
+			for x := 0.0; x < nChild; x++ {
+				parent2 := pop[rand.Intn(selectionNum)]
+				// Crossover
+				split := rand.Intn(utf8.RuneCountInString(target))
+				child1 := append([]rune(parent1.Key)[:split], []rune(parent2.Key)[split:]...)
+				child2 := append([]rune(parent2.Key)[:split], []rune(parent1.Key)[split:]...)
+				// Clean fitness value
+				// Mutate
+				if rand.Float64() < mutationProb {
+					child1[rand.Intn(len(child1))] = charmap[rand.Intn(len(charmap))]
+				}
+				if rand.Float64() < mutationProb {
+					child2[rand.Intn(len(child2))] = charmap[rand.Intn(len(charmap))]
+				}
+				// Push into 'popChildren'
+				popChildren = append(popChildren, PopulationItem{string(child1), 0})
+				popChildren = append(popChildren, PopulationItem{string(child2), 0})
+
+				// Check if the population has already reached the maximum value and if so,
+				// break the cycle. If this check is disabled the algorithm will take
+				// forever to compute large strings but will also calculate small string in
+				// a lot fewer generationsù
+				if len(popChildren) >= selectionNum {
+					break
+				}
+			}
+		}
+		pop = popChildren
+	}
+	return &Result{gen, generatedPop, pop[0]}, nil
+}
+// Queue Test
+// description: based on `geeksforgeeks` description A Queue is a linear structure which follows a particular order in which the operations are performed.
+// 	The order is First In First Out (FIFO).
+// details:
+// 	Queue Data Structure : https://www.geeksforgeeks.org/queue-data-structure/
+//  Queue (abstract data type) : https://en.wikipedia.org/wiki/Queue_(abstract_data_type)
+// author [Milad](https://github.com/miraddo)
+// see queuearray.go, queuelinkedlist.go, queuelinkedlistwithlist.go
+
+package queue
+
+import (
+	"container/list"
+	"testing"
+)
+
+func TestQueue(t *testing.T) {
+
+	// Handle Queue Linked List
+	t.Run("Test Queue Linked List", func(t *testing.T) {
+
+		t.Run("Test EnQueue", func(t *testing.T) {
+			var newQueue Queue
+			newQueue.enqueue(2)
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+			newQueue.enqueue(45)
+
+			if newQueue.frontQueue() != 2 && newQueue.backQueue() != 45 {
+				t.Errorf("Test EnQueue is wrong the result must be %v and %v but got %v and %v", 2, 45, newQueue.frontQueue(), newQueue.backQueue())
+			}
+
+		})
+
+		t.Run("Test DeQueue", func(t *testing.T) {
+			var newQueue Queue
+			newQueue.enqueue(2)
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+
+			newQueue.dequeue()
+			if newQueue.dequeue() != 3 {
+				t.Errorf("Test DeQueue is wrong the result must be %v but got %v", 3, newQueue.dequeue())
+			}
+
+			//fmt.Println(newQueue.show())
+		})
+
+		t.Run("Test Queue isEmpty", func(t *testing.T) {
+			var newQueue Queue
+			if newQueue.isEmpty() != true {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", true, newQueue.isEmpty())
+			}
+
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+
+			if newQueue.isEmpty() != false {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", false, newQueue.isEmpty())
+			}
+		})
+
+		t.Run("Test Queue Length", func(t *testing.T) {
+			var newQueue Queue
+			if newQueue.len() != 0 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 0, newQueue.len())
+			}
+
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+			newQueue.dequeue()
+			newQueue.enqueue(22)
+			newQueue.enqueue(99)
+			newQueue.dequeue()
+			newQueue.dequeue()
+
+			if newQueue.len() != 1 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 1, newQueue.len())
+			}
+
+		})
+	})
+
+	// Handle Queue Array
+	t.Run("Test Queue Array", func(t *testing.T) {
+		t.Run("Test EnQueue", func(t *testing.T) {
+			EnQueue(2)
+			EnQueue(23)
+			EnQueue(45)
+			EnQueue(66)
+
+			if FrontQueue() != 2 && BackQueue() != 66 {
+				t.Errorf("Test EnQueue is wrong the result must be %v and %v but got %v and %v", 2, 66, FrontQueue(), BackQueue())
+			}
+
+		})
+
+		t.Run("Test DeQueue", func(t *testing.T) {
+			EnQueue(2)
+			EnQueue(23)
+			EnQueue(45)
+			EnQueue(66)
+
+			DeQueue()
+			DeQueue()
+
+			if DeQueue() != 45 {
+				t.Errorf("Test DeQueue is wrong the result must be %v but got %v", 45, DeQueue())
+			}
+		})
+
+		ListQueue = []interface{}{}
+
+		t.Run("Test Queue isEmpty", func(t *testing.T) {
+
+			if IsEmptyQueue() != true {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", true, IsEmptyQueue())
+			}
+
+			EnQueue(3)
+			EnQueue(4)
+
+			if IsEmptyQueue() != false {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", false, IsEmptyQueue())
+			}
+		})
+
+		ListQueue = []interface{}{}
+		t.Run("Test Queue Length", func(t *testing.T) {
+			if LenQueue() != 0 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 0, LenQueue())
+			}
+
+			EnQueue(3)
+			EnQueue(4)
+			DeQueue()
+			EnQueue(22)
+			EnQueue(99)
+			DeQueue()
+			DeQueue()
+
+			if LenQueue() != 1 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 1, LenQueue())
+			}
+
+		})
+
+	})
+
+	// Handle Queue Linked-List With Container/List (STL)
+	t.Run("Test Container/List For Queue", func(t *testing.T) {
+		listQueue := &LQueue{
+			queue: list.New(),
+		}
+
+		t.Run("List Enqueue", func(t *testing.T) {
+			listQueue.Enqueue("Snap")
+			listQueue.Enqueue(123)
+			listQueue.Enqueue(true)
+			listQueue.Enqueue(212.545454)
+
+			if listQueue.Len() != 4 {
+				t.Errorf("List Enqueue is not correct expected %d but got %d", 4, listQueue.Len())
+			}
+		})
+
+		t.Run("List Dequeue", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+			if listQueue.Len() != 3 {
+				t.Errorf("List Dequeue is not correct expected %d but got %d", 3, listQueue.Len())
+			}
+		})
+
+		t.Run("List Front", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			result, err := listQueue.Front()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if result != true {
+				t.Errorf("List Front is not correct expected %v but got %v", true, result)
+			}
+		})
+
+		t.Run("List Back", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			result, err := listQueue.Back()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if result != 212.545454 {
+				t.Errorf("List Back is not correct expected %v but got %v", 212.545454, result)
+			}
+		})
+
+		t.Run("List Length", func(t *testing.T) {
+
+			listQueue.Enqueue("Snap")
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if listQueue.Len() != 1 {
+				t.Errorf("List Length is not correct expected %v but got %v", 1, listQueue.Len())
+			}
+		})
+
+		t.Run("List Empty", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if !listQueue.Empty() {
+				t.Errorf("List Empty is not correct expected %v but got %v", true, listQueue.Empty())
+			}
+		})
+
+	})
+
+}
+// Queue Test
+// description: based on `geeksforgeeks` description A Queue is a linear structure which follows a particular order in which the operations are performed.
+// 	The order is First In First Out (FIFO).
+// details:
+// 	Queue Data Structure : https://www.geeksforgeeks.org/queue-data-structure/
+//  Queue (abstract data type) : https://en.wikipedia.org/wiki/Queue_(abstract_data_type)
+// author [Milad](https://github.com/miraddo)
+// see queuearray.go, queuelinkedlist.go, queuelinkedlistwithlist.go
+
+package queue
+
+import (
+	"container/list"
+	"testing"
+)
+
+func TestQueue(t *testing.T) {
+
+	// Handle Queue Linked List
+	t.Run("Test Queue Linked List", func(t *testing.T) {
+
+		t.Run("Test EnQueue", func(t *testing.T) {
+			var newQueue Queue
+			newQueue.enqueue(2)
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+			newQueue.enqueue(45)
+
+			if newQueue.frontQueue() != 2 && newQueue.backQueue() != 45 {
+				t.Errorf("Test EnQueue is wrong the result must be %v and %v but got %v and %v", 2, 45, newQueue.frontQueue(), newQueue.backQueue())
+			}
+
+		})
+
+		t.Run("Test DeQueue", func(t *testing.T) {
+			var newQueue Queue
+			newQueue.enqueue(2)
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+
+			newQueue.dequeue()
+			if newQueue.dequeue() != 3 {
+				t.Errorf("Test DeQueue is wrong the result must be %v but got %v", 3, newQueue.dequeue())
+			}
+
+			//fmt.Println(newQueue.show())
+		})
+
+		t.Run("Test Queue isEmpty", func(t *testing.T) {
+			var newQueue Queue
+			if newQueue.isEmpty() != true {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", true, newQueue.isEmpty())
+			}
+
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+
+			if newQueue.isEmpty() != false {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", false, newQueue.isEmpty())
+			}
+		})
+
+		t.Run("Test Queue Length", func(t *testing.T) {
+			var newQueue Queue
+			if newQueue.len() != 0 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 0, newQueue.len())
+			}
+
+			newQueue.enqueue(3)
+			newQueue.enqueue(4)
+			newQueue.dequeue()
+			newQueue.enqueue(22)
+			newQueue.enqueue(99)
+			newQueue.dequeue()
+			newQueue.dequeue()
+
+			if newQueue.len() != 1 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 1, newQueue.len())
+			}
+
+		})
+	})
+
+	// Handle Queue Array
+	t.Run("Test Queue Array", func(t *testing.T) {
+		t.Run("Test EnQueue", func(t *testing.T) {
+			EnQueue(2)
+			EnQueue(23)
+			EnQueue(45)
+			EnQueue(66)
+
+			if FrontQueue() != 2 && BackQueue() != 66 {
+				t.Errorf("Test EnQueue is wrong the result must be %v and %v but got %v and %v", 2, 66, FrontQueue(), BackQueue())
+			}
+
+		})
+
+		t.Run("Test DeQueue", func(t *testing.T) {
+			EnQueue(2)
+			EnQueue(23)
+			EnQueue(45)
+			EnQueue(66)
+
+			DeQueue()
+			DeQueue()
+
+			if DeQueue() != 45 {
+				t.Errorf("Test DeQueue is wrong the result must be %v but got %v", 45, DeQueue())
+			}
+		})
+
+		ListQueue = []interface{}{}
+
+		t.Run("Test Queue isEmpty", func(t *testing.T) {
+
+			if IsEmptyQueue() != true {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", true, IsEmptyQueue())
+			}
+
+			EnQueue(3)
+			EnQueue(4)
+
+			if IsEmptyQueue() != false {
+				t.Errorf("Test Queue isEmpty is wrong the result must be %v but got %v", false, IsEmptyQueue())
+			}
+		})
+
+		ListQueue = []interface{}{}
+		t.Run("Test Queue Length", func(t *testing.T) {
+			if LenQueue() != 0 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 0, LenQueue())
+			}
+
+			EnQueue(3)
+			EnQueue(4)
+			DeQueue()
+			EnQueue(22)
+			EnQueue(99)
+			DeQueue()
+			DeQueue()
+
+			if LenQueue() != 1 {
+				t.Errorf("Test Queue Length is wrong the result must be %v but got %v", 1, LenQueue())
+			}
+
+		})
+
+	})
+
+	// Handle Queue Linked-List With Container/List (STL)
+	t.Run("Test Container/List For Queue", func(t *testing.T) {
+		listQueue := &LQueue{
+			queue: list.New(),
+		}
+
+		t.Run("List Enqueue", func(t *testing.T) {
+			listQueue.Enqueue("Snap")
+			listQueue.Enqueue(123)
+			listQueue.Enqueue(true)
+			listQueue.Enqueue(212.545454)
+
+			if listQueue.Len() != 4 {
+				t.Errorf("List Enqueue is not correct expected %d but got %d", 4, listQueue.Len())
+			}
+		})
+
+		t.Run("List Dequeue", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+			if listQueue.Len() != 3 {
+				t.Errorf("List Dequeue is not correct expected %d but got %d", 3, listQueue.Len())
+			}
+		})
+
+		t.Run("List Front", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			result, err := listQueue.Front()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if result != true {
+				t.Errorf("List Front is not correct expected %v but got %v", true, result)
+			}
+		})
+
+		t.Run("List Back", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			result, err := listQueue.Back()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if result != 212.545454 {
+				t.Errorf("List Back is not correct expected %v but got %v", 212.545454, result)
+			}
+		})
+
+		t.Run("List Length", func(t *testing.T) {
+
+			listQueue.Enqueue("Snap")
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if listQueue.Len() != 1 {
+				t.Errorf("List Length is not correct expected %v but got %v", 1, listQueue.Len())
+			}
+		})
+
+		t.Run("List Empty", func(t *testing.T) {
+
+			err := listQueue.Dequeue()
+
+			if err != nil {
+				t.Error("got an unexpected error ", err)
+			}
+
+			if !listQueue.Empty() {
+				t.Errorf("List Empty is not correct expected %v but got %v", true, listQueue.Empty())
+			}
+		})
+
+	})
+
+}
